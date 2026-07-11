@@ -1378,7 +1378,8 @@ function startPipeline(q, lat, lng){
   document.getElementById('mc-val').textContent='--%';
   document.getElementById('next-steps').innerHTML='';
 
-  const ws=new WebSocket("ws://localhost:8000/ws/analyze");
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const ws = new WebSocket(`${protocol}//${window.location.host}/ws/analyze`);
   ws.onopen=()=>ws.send(JSON.stringify({query:q,lang:curLang,lat:lat,lng:lng}));
   ws.onmessage=e=>handle(JSON.parse(e.data));
   ws.onerror=()=>{alert("Cannot connect.");document.getElementById('inputZone').classList.remove('shrunk');};
