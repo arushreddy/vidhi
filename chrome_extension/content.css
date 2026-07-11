@@ -1,0 +1,24 @@
+#vidhi-float-btn {
+  position: absolute;
+  z-index: 2147483647;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #D4AF37, #C5832B);
+  border-radius: 8px;
+  color: white;
+  font-family: monospace;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(212,175,55,0.4);
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: transform 0.2s;
+  user-select: none;
+}
+
+#vidhi-float-btn:hover {
+  transform: scale(1.1);
+}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    width: 380px;
+    height: 550px;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #FDFBF7;
+    color: #2C1810;
+    display: flex;
+    flex-direction: column;
+  }
+  .header {
+    background: linear-gradient(135deg, #D4AF37, #C5832B);
+    color: white;
+    padding: 16px;
+    font-weight: bold;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-logo {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 20px;
+  }
+  .content {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+  }
+  textarea {
+    width: 100%;
+    height: 80px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(212,175,55,0.4);
+    resize: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  textarea:focus {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
+  }
+  button {
+    background: linear-gradient(135deg, #D4AF37, #C5832B);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(212,175,55,0.3);
+  }
+  button:hover { transform: translateY(-1px); }
+  .agent-status {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid rgba(226,216,192,0.6);
+    padding: 12px;
+    margin-top: 10px;
+    display: none;
+  }
+  .status-line {
+    font-family: monospace;
+    font-size: 11px;
+    color: #C5832B;
+    margin-bottom: 6px;
+  }
+  .agent-name {
+    font-weight: bold;
+    font-size: 12px;
+    color: #9C661F;
+  }
+  .result-card {
+    background: white;
+    border-radius: 12px;
+    border-left: 3px solid #D4AF37;
+    padding: 12px;
+    margin-top: 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: none;
+  }
+  .win-prob {
+    font-size: 24px;
+    font-weight: bold;
+    color: #8B4513;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-logo">V</div>
+    VIDHI Legal Scanner
+  </div>
+  <div class="content">
+    <div style="font-size: 12px; color: #8B7355; margin-bottom: -4px;">Analyze any text or custom query:</div>
+    <textarea id="query" placeholder="Type your legal problem, or highlight text on the webpage to scan it..."></textarea>
+    <button id="scanBtn">Run 8-Agent Analysis</button>
+    
+    <div class="agent-status" id="statusBox">
+      <div class="status-line" id="statusText">Initializing Agents...</div>
+      <div class="agent-name" id="currentAgent">STANDBY</div>
+    </div>
+    
+    <div class="result-card" id="resCard">
+      <div style="color: #9C661F; font-weight: bold; margin-bottom: 6px;">Win Probability</div>
+      <div class="win-prob" id="winProb">--%</div>
+      <hr style="border: 0; border-top: 1px dashed #E8DCC8; margin: 10px 0;">
+      <div style="color: #9C661F; font-weight: bold; margin-bottom: 6px;">Strategic Assessment</div>
+      <div id="strategyText"></div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
