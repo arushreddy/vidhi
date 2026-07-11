@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VIDHI — Autonomous Legal Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#FDFBF7;
+  --surface:#FFFFFF;
+  --surface2:#F4EFE6;
+  --border:#E2D8C0;
+  --text:#3E2723;
+  --text2:#8B7355;
+  --v1:#D4AF37;--v1g:rgba(212,175,55,0.15);
+  --v2:#C5832B;--v2g:rgba(197,131,43,0.15);
+  --v3:#9C661F;--v3g:rgba(156,102,31,0.15);
+  --v4:#8B4513;--v4g:rgba(139,69,19,0.15);
+}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* ══ PARTICLE FIELD ══ */
+canvas#particles{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;}
+
+.app{position:relative;z-index:10;max-width:1200px;margin:0 auto;padding:30px 20px 80px;}
+
+/* ══ TOPBAR ══ */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;flex-wrap:wrap;gap:12px;}
+.brand{display:flex;align-items:center;gap:14px;}
+.brand-mark{
+  width:44px;height:44px;border-radius:14px;
+  background:linear-gradient(135deg,var(--v1),var(--v2));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:20px;color:#fff;
+  box-shadow:0 4px 25px rgba(212,175,55,0.4);
+  position:relative;
+}
+.brand-mark::after{content:'';position:absolute;inset:-3px;border-radius:17px;border:1.5px solid rgba(212,175,55,0.4);animation:brand-pulse 2s infinite;}
+@keyframes brand-pulse{50%{border-color:rgba(197,131,43,0.5);transform:scale(1.05);}}
+.brand-name{font-size:22px;font-weight:700;letter-spacing:4px;}
+.brand-ver{font-family:'JetBrains Mono';font-size:9px;color:var(--text2);}
+
+.top-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+
+/* Language Carousel */
+.lang-carousel{
+  display:flex;gap:4px;padding:4px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;overflow-x:auto;
+}
+.lang-chip{
+  padding:6px 12px;border-radius:8px;border:none;
+  font-family:'Outfit';font-size:11px;font-weight:600;
+  background:transparent;color:var(--text2);cursor:pointer;
+  transition:0.3s;white-space:nowrap;
+}
+.lang-chip.active{background:linear-gradient(135deg,var(--v1),var(--v2));color:#fff;box-shadow:0 2px 10px rgba(212,175,55,0.3);}
+.lang-chip:hover:not(.active){color:var(--text);background:var(--surface2);}
+
+.sys-badge{
+  font-family:'JetBrains Mono';font-size:10px;
+  padding:6px 14px;border-radius:20px;
+  background:var(--surface);border:1px solid var(--border);
+  color:#34D399;display:flex;align-items:center;gap:8px;
+}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:#34D399;animation:blinker 1.5s infinite;}
+@keyframes blinker{50%{opacity:0.2;}}
+
+/* ══ INPUT SECTION ══ */
+.input-section{max-width:750px;margin:0 auto 50px;transition:all 0.7s cubic-bezier(0.25,1,0.5,1);}
+.input-section.shrunk{transform:scale(0.93);opacity:0.4;pointer-events:none;margin-bottom:20px;}
+
+.input-shell{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:22px;padding:6px;
+  box-shadow:0 25px 60px rgba(139,69,19,0.08);
+  transition:0.4s;
+}
+.input-shell:focus-within{
+  border-color:rgba(212,175,55,0.5);
+  box-shadow:0 25px 60px rgba(139,69,19,0.12),0 0 0 4px rgba(212,175,55,0.15);
+}
+
+.input-flex{display:flex;align-items:flex-end;gap:6px;padding:6px 6px 6px 0;}
+textarea{
+  flex:1;background:transparent;border:none;color:var(--text);
+  font-family:'Outfit';font-size:17px;font-weight:400;
+  padding:16px 20px;resize:none;outline:none;height:68px;line-height:1.5;
+}
+textarea::placeholder{color:#3F3F46;font-weight:300;}
+
+.circle-btn{
+  width:48px;height:48px;border-radius:14px;border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:0.3s;flex-shrink:0;
+}
+.mic-btn{background:var(--surface2);color:var(--text2);}
+.mic-btn:hover{background:var(--v2);color:#fff;box-shadow:0 0 20px var(--v2g);}
+.mic-btn.recording{background:var(--v2);color:#fff;animation:mic-pulse 0.8s infinite alternate;}
+@keyframes mic-pulse{to{box-shadow:0 0 30px rgba(197,131,43,0.5);transform:scale(1.08);}}
+
+.go-btn{
+  background:linear-gradient(135deg,var(--v1),var(--v2));color:#fff;
+  box-shadow:0 4px 18px rgba(212,175,55,0.3);
+}
+.go-btn:hover{transform:scale(1.06);box-shadow:0 6px 22px rgba(212,175,55,0.4);}
+
+.detect-bar{
+  padding:8px 20px;font-family:'JetBrains Mono';font-size:10px;
+  color:var(--text2);display:flex;align-items:center;gap:8px;
+}
+.detect-lang{color:var(--v1);font-weight:600;}
+
+/* ══ AGENT COMMAND DECK ══ */
+.agent-deck{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  margin-bottom:40px;
+}
+.agent-card{
+  text-align:center;padding:28px 12px 20px;
+  border-radius:20px;border:1px solid var(--border);
+  background:var(--surface);
+  transition:all 0.6s cubic-bezier(0.25,1,0.5,1);
+  opacity:0.3;position:relative;overflow:hidden;
+}
+.agent-card.active{opacity:1;transform:translateY(-4px);}
+.agent-card.done{opacity:1;}
+
+/* Scanner beam */
+.scan-beam{
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--v1),transparent);
+  transform:translateX(-100%);display:none;
+}
+.agent-card.active .scan-beam{display:block;animation:beam 1.2s ease-in-out infinite;}
+@keyframes beam{to{transform:translateX(100%);}}
+
+/* ══ ROBOT FACES (SVG) ══ */
+.robot-face{
+  width:80px;height:80px;margin:0 auto 16px;
+  border-radius:22px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  transition:0.5s;
+}
+.agent-card.active .robot-face{animation:hover-bot 1.2s ease-in-out infinite alternate;}
+@keyframes hover-bot{to{transform:translateY(-8px) scale(1.06);}}
+.agent-card.done .robot-face{filter:drop-shadow(0 0 12px rgba(156,102,31,0.3));}
+
+.r1{background:linear-gradient(145deg,#E6C27A,#D4AF37);box-shadow:0 8px 25px var(--v1g);}
+.r2{background:linear-gradient(145deg,#D69C56,#C5832B);box-shadow:0 8px 25px var(--v2g);}
+.r3{background:linear-gradient(145deg,#B88645,#9C661F);box-shadow:0 8px 25px var(--v3g);}
+.r4{background:linear-gradient(145deg,#A0522D,#8B4513);box-shadow:0 8px 25px var(--v4g);}
+
+.robot-face svg{width:44px;height:44px;}
+
+/* Eye glow when active */
+.agent-card.active .eye{animation:eye-glow 0.6s infinite alternate;}
+@keyframes eye-glow{to{fill:#fff;filter:drop-shadow(0 0 6px #fff);}}
+.agent-card.done .eye{fill:var(--v3);}
+
+/* Done checkmark overlay */
+.done-badge{
+  position:absolute;bottom:-4px;right:-4px;
+  width:24px;height:24px;border-radius:50%;
+  background:var(--v3);color:#fff;
+  display:none;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;
+  border:3px solid var(--surface);
+}
+.agent-card.done .done-badge{display:flex;}
+
+.agent-label{font-size:13px;font-weight:600;margin-bottom:4px;}
+.agent-tech{font-family:'JetBrains Mono';font-size:9px;color:var(--text2);margin-bottom:10px;}
+.agent-state{
+  font-family:'JetBrains Mono';font-size:9px;
+  padding:4px 10px;border-radius:6px;display:inline-block;
+  background:var(--surface2);color:var(--text2);
+  transition:0.3s;
+}
+.agent-card.active .agent-state{background:var(--v1g);color:var(--v1);}
+.agent-card.done .agent-state{background:var(--v3g);color:var(--v3);}
+
+/* Thought Stream Terminal */
+.thought-stream{
+  width:100%;height:0;overflow:hidden;
+  background:#1E1E1E;border-radius:8px;
+  margin-top:0;font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;color:#34D399;text-align:left;
+  padding:0;transition:all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  display:flex;flex-direction:column;gap:4px;
+}
+.agent-card.active .thought-stream{
+  height:95px;padding:10px;margin-top:12px;
+  border:1px solid rgba(255,255,255,0.1);
+  box-shadow:inset 0 2px 10px rgba(0,0,0,0.5);
+  overflow-y:auto;
+}
+.agent-card.done .thought-stream{
+  height:0;padding:0;margin-top:0;border:none;
+}
+.thought-line{
+  opacity:0;animation:fade-in 0.3s forwards;
+  line-height:1.4;
+}
+@keyframes fade-in{to{opacity:1;}}
+
+/* ══ RESULT CARDS ══ */
+.results-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;
+}
+.res-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:26px;
+  opacity:0;transform:translateY(16px);
+  transition:all 0.6s cubic-bezier(0.25,1,0.5,1);
+  position:relative;overflow:hidden;
+}
+.res-card.show{opacity:1;transform:translateY(0);}
+.res-card.wide{grid-column:1/-1;}
+
+.res-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:20px 20px 0 0;}
+.res-card.c1::before{background:linear-gradient(90deg,#E6C27A,#D4AF37);}
+.res-card.c2::before{background:linear-gradient(90deg,#D69C56,#C5832B);}
+.res-card.c3::before{background:linear-gradient(90deg,#B88645,#9C661F);}
+.res-card.c4::before{background:linear-gradient(90deg,#A0522D,#8B4513);}
+
+.res-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.res-icon{
+  width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.c1 .res-icon{background:var(--v1g);color:var(--v1);}
+.c2 .res-icon{background:var(--v2g);color:var(--v2);}
+.c3 .res-icon{background:var(--v3g);color:var(--v3);}
+.c4 .res-icon{background:var(--v4g);color:var(--v4);}
+.res-label{font-size:14px;font-weight:600;}
+
+.res-body{font-size:14px;line-height:1.7;color:var(--text2);}
+
+/* Inner styles */
+.law-item{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px;margin-bottom:10px;
+  border-left:3px solid var(--v1);
+}
+.law-name{font-weight:600;color:var(--text);margin-bottom:3px;font-size:14px;}
+.law-ref{font-family:'JetBrains Mono';font-size:10px;color:var(--text2);}
+
+.psych-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(239,68,68,0.08);color:#F87171;
+  padding:8px 14px;border-radius:8px;
+  font-family:'JetBrains Mono';font-size:11px;font-weight:600;
+  border:1px solid rgba(239,68,68,0.15);margin-bottom:14px;
+}
+
+.doc-block{
+  font-family:'JetBrains Mono';font-size:11.5px;color:var(--text2);
+  background:var(--surface2);padding:22px;border-radius:12px;
+  white-space:pre-wrap;line-height:1.7;border:1px solid var(--border);
+  max-height:280px;overflow-y:auto;
+}
+
+.big-num{
+  font-size:60px;font-weight:700;line-height:1;
+  background:linear-gradient(135deg,var(--v4),#C5832B);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:6px;
+}
+.bar-bg{width:100%;height:6px;border-radius:3px;background:var(--border);margin-top:14px;overflow:hidden;}
+.bar-val{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--v4),#C5832B);width:0%;transition:width 1.5s cubic-bezier(0.25,1,0.5,1);}
+
+.dl-btn{
+  width:100%;padding:14px;border-radius:12px;
+  background:linear-gradient(135deg,var(--v3),#8B4513);
+  color:#fff;border:none;font-family:'Outfit';font-weight:600;
+  font-size:14px;cursor:pointer;margin-top:18px;
+  box-shadow:0 6px 20px var(--v3g);transition:0.3s;display:none;
+}
+.dl-btn:hover{transform:translateY(-2px);box-shadow:0 10px 25px var(--v3g);}
+
+@media(max-width:768px){
+  .agent-deck{grid-template-columns:1fr 1fr;}
+  .results-grid{grid-template-columns:1fr;}
+  .res-card.wide{grid-column:1;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">V</div>
+      <div><div class="brand-name">VIDHI</div><div class="brand-ver">MULTI-AGENT LEGAL CORE v4.0</div></div>
+    </div>
+    <div class="top-controls">
+      <div class="lang-carousel" id="langBar">
+        <button class="lang-chip active" data-lang="en">English</button>
+        <button class="lang-chip" data-lang="hi">हिन्दी</button>
+        <button class="lang-chip" data-lang="ta">தமிழ்</button>
+        <button class="lang-chip" data-lang="te">తెలుగు</button>
+        <button class="lang-chip" data-lang="bn">বাংলা</button>
+        <button class="lang-chip" data-lang="mr">मराठी</button>
+        <button class="lang-chip" data-lang="gu">ગુજરાતી</button>
+        <button class="lang-chip" data-lang="kn">ಕನ್ನಡ</button>
+        <button class="lang-chip" data-lang="ml">മലയാളം</button>
+        <button class="lang-chip" data-lang="pa">ਪੰਜਾਬੀ</button>
+        <button class="lang-chip" data-lang="auto">🌐 Auto</button>
+      </div>
+      <div class="sys-badge"><div class="pulse-dot"></div>ONLINE</div>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-section" id="inputZone">
+    <div class="input-shell">
+      <div class="input-flex">
+        <textarea id="qInput" placeholder="Describe your legal problem in any language..."></textarea>
+        <button class="circle-btn mic-btn" id="micBtn" onclick="toggleMic()" title="Voice Input">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button class="circle-btn go-btn" onclick="execute()" title="Run Pipeline">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+      </div>
+      <div class="detect-bar" id="detectBar">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Detected: <span class="detect-lang" id="detectedLang">Waiting for input...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENT DECK -->
+  <div class="agent-deck" id="agentDeck">
+
+    <!-- Agent 1: Graph Retriever -->
+    <div class="agent-card" id="av-graph">
+      <div class="scan-beam" style="background:linear-gradient(90deg,transparent,var(--v1),transparent);"></div>
+      <div class="robot-face r1">
+        <svg viewBox="0 0 64 64" fill="none">
+          <rect x="8" y="16" width="48" height="38" rx="10" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+          <rect x="24" y="6" width="16" height="12" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+          <circle cx="22" cy="32" r="5" class="eye" fill="rgba(255,255,255,0.7)"/>
+          <circle cx="42" cy="32" r="5" class="eye" fill="rgba(255,255,255,0.7)"/>
+          <circle cx="22" cy="32" r="2" fill="var(--bg)"/>
+          <circle cx="42" cy="32" r="2" fill="var(--bg)"/>
+          <path d="M26 42 h12" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="32" y1="6" x2="32" y2="2" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+          <circle cx="32" cy="2" r="2" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+        <div class="done-badge">✓</div>
+      </div>
+      <div class="agent-label">Graph Retriever</div>
+      <div class="agent-tech">NetworkX · RAG</div>
+      <div class="agent-state" id="st-graph">STANDBY</div>
+      <div class="thought-stream" id="ts-graph"></div>
+    </div>
+
+    <!-- Agent 2: Legal Reasoner -->
+    <div class="agent-card" id="av-logic">
+      <div class="scan-beam" style="background:linear-gradient(90deg,transparent,var(--v2),transparent);"></div>
+      <div class="robot-face r2">
+        <svg viewBox="0 0 64 64" fill="none">
+          <rect x="8" y="16" width="48" height="38" rx="10" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+          <path d="M20 8 Q32 0 44 8" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none"/>
+          <rect x="19" y="28" width="10" height="8" rx="2" class="eye" fill="rgba(255,255,255,0.7)"/>
+          <rect x="35" y="28" width="10" height="8" rx="2" class="eye" fill="rgba(255,255,255,0.7)"/>
+          <rect x="22" y="30" width="4" height="4" rx="1" fill="var(--bg)"/>
+          <rect x="38" y="30" width="4" height="4" rx="1" fill="var(--bg)"/>
+          <path d="M24 44 Q32 48 40 44" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="done-badge">✓</div>
+      </div>
+      <div class="agent-label">Legal Reasoner</div>
+      <div class="agent-tech">LLM · Semantic</div>
+      <div class="agent-state" id="st-logic">STANDBY</div>
+      <div class="thought-stream" id="ts-logic"></div>
+    </div>
+
+    <!-- Agent 3: Notice Drafter -->
+    <div class="agent-card" id="av-notice">
+      <div class="scan-beam" style="background:linear-gradient(90deg,transparent,var(--v3),transparent);"></div>
+      <div class="robot-face r3">
+        <svg viewBox="0 0 64 64" fill="none">
+          <rect x="10" y="12" width="44" height="42" rx="8" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+          <rect x="6" y="28" width="8" height="12" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+          <rect x="50" y="28" width="8" height="12" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+          <circle cx="26" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/>
+          <circle cx="38" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/>
+          <circle cx="26" cy="30" r="1.5" fill="var(--bg)"/>
+          <circle cx="38" cy="30" r="1.5" fill="var(--bg)"/>
+          <rect x="24" y="40" width="16" height="3" rx="1.5" fill="rgba(255,255,255,0.4)"/>
+        </svg>
+        <div class="done-badge">✓</div>
+      </div>
+      <div class="agent-label">Notice Drafter</div>
+      <div class="agent-tech">NLP · Assembly</div>
+      <div class="agent-state" id="st-notice">STANDBY</div>
+      <div class="thought-stream" id="ts-notice"></div>
+    </div>
+
+    <!-- Agent 4: Monte Carlo -->
+    <div class="agent-card" id="av-scorer">
+      <div class="scan-beam" style="background:linear-gradient(90deg,transparent,var(--v4),transparent);"></div>
+      <div class="robot-face r4">
+        <svg viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="24" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+          <polygon points="32,6 34,14 30,14" fill="rgba(255,255,255,0.3)"/>
+          <circle cx="24" cy="28" r="5" class="eye" fill="rgba(255,255,255,0.7)"/>
+          <circle cx="40" cy="28" r="5" class="eye" fill="rgba(255,255,255,0.7)"/>
+          <circle cx="24" cy="28" r="2" fill="var(--bg)"/>
+          <circle cx="40" cy="28" r="2" fill="var(--bg)"/>
+          <path d="M24 40 Q32 46 40 40" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <circle cx="32" cy="32" r="24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" stroke-dasharray="3 3"/>
+        </svg>
+        <div class="done-badge">✓</div>
+      </div>
+      <div class="agent-label">Monte Carlo</div>
+      <div class="agent-tech">Stochastic · Sim</div>
+      <div class="agent-state" id="st-scorer">STANDBY</div>
+      <div class="thought-stream" id="ts-scorer"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-grid" id="resultsGrid">
+    <div class="res-card c1" id="rc-graph">
+      <div class="res-head"><div class="res-icon">⚡</div><div class="res-label" data-i18n="laws_found">Retrieved Legal Provisions</div></div>
+      <div class="res-body" id="res-graph"></div>
+    </div>
+    <div class="res-card c4" id="rc-mc">
+      <div class="res-head"><div class="res-icon">🎯</div><div class="res-label" data-i18n="win_prob">Win Probability</div></div>
+      <div class="res-body" id="res-scorer">
+        <div class="big-num" id="mc-val">--%</div>
+        <div style="font-size:11px;color:var(--text2);" data-i18n="mc_desc">Monte Carlo Simulation (100 trials)</div>
+        <div class="bar-bg"><div class="bar-val" id="mc-bar"></div></div>
+      </div>
+    </div>
+    <div class="res-card c2 wide" id="rc-logic">
+      <div class="res-head"><div class="res-icon">🧠</div><div class="res-label" data-i18n="analysis">Legal Analysis</div></div>
+      <div class="res-body" id="res-logic"></div>
+    </div>
+    <div class="res-card c3 wide" id="rc-notice">
+      <div class="res-head"><div class="res-icon">📄</div><div class="res-label" data-i18n="notice">Generated Legal Notice</div></div>
+      <div class="res-body" id="res-notice"></div>
+      <button class="dl-btn" id="pdfBtn" onclick="dlPDF()" data-i18n="download">⬇ Download Legal Notice PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════ PARTICLE FIELD ══════════ */
+(function(){
+  const c=document.getElementById('particles'),ctx=c.getContext('2d');
+  let w,h,pts=[];
+  function resize(){w=c.width=innerWidth;h=c.height=innerHeight;pts=[];for(let i=0;i<80;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.5});}
+  resize();window.addEventListener('resize',resize);
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>w)p.vx*=-1;
+      if(p.y<0||p.y>h)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(212,175,55,0.4)';ctx.fill();
+    });
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle=`rgba(212,175,55,${0.15*(1-d/120)})`;ctx.stroke();}
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ══════════ THOUGHT ENGINE ══════════ */
+const THOUGHT_BANKS={
+  graph_search: ["[SYS] Booting NLP engine...", "[TRN] Normalizing language vectors...", "[GPH] Querying Knowledge Nodes...", "[VEC] Embedding dimensions...", "[MTCH] Filtering legal matches..."],
+  legal_analysis: ["[LLM] Waking reasoning core...", "[PRM] Injecting factual context...", "[RSN] Mapping to statutory rights...", "[RSN] Identifying remedies...", "[SYN] Structuring strategy..."],
+  notice_generator: ["[LLM] Loading formal templates...", "[EXT] Extracting info...", "[DRF] Framing grievance...", "[DRF] Structuring violations...", "[OUT] Finalizing PDF..."],
+  win_scorer: ["[SIM] Booting Monte Carlo engine...", "[SIM] Seeding risk variables...", "[SIM] Running distribution trials..."]
+};
+let thoughtIntervals={};
+
+function startThinking(id, thoughts){
+  const container=document.getElementById(id);
+  container.innerHTML=''; let i=0;
+  thoughtIntervals[id]=setInterval(()=>{
+    const div=document.createElement('div');
+    div.className='thought-line'; div.textContent="> "+thoughts[i%thoughts.length];
+    container.appendChild(div); container.scrollTop=container.scrollHeight; i++;
+  }, 800);
+}
+
+function stopThinking(id){clearInterval(thoughtIntervals[id]); delete thoughtIntervals[id];}
+
+/* ══════════ I18N ENGINE ══════════ */
+const LANG_MAP={
+  en:{code:'en-IN',placeholder:'Describe your legal problem in any language...',standby:'STANDBY',working:'ANALYZING...',done:'COMPLETE',laws_found:'Retrieved Legal Provisions',win_prob:'Win Probability',mc_desc:'Monte Carlo Simulation (100 trials)',analysis:'Legal Analysis',notice:'Generated Legal Notice',download:'⬇ Download Legal Notice PDF'},
+  hi:{code:'hi-IN',placeholder:'अपनी कानूनी समस्या किसी भी भाषा में बताएं...',standby:'तैयार',working:'विश्लेषण...',done:'पूर्ण',laws_found:'प्राप्त कानूनी प्रावधान',win_prob:'जीत की संभावना',mc_desc:'मोंटे कार्लो सिमुलेशन (100 परीक्षण)',analysis:'कानूनी विश्लेषण',notice:'उत्पन्न कानूनी नोटिस',download:'⬇ कानूनी नोटिस PDF डाउनलोड करें'},
+  ta:{code:'ta-IN',placeholder:'உங்கள் சட்ட பிரச்சனையை எந்த மொழியிலும் விவரிக்கவும்...',standby:'தயார்',working:'பகுப்பாய்வு...',done:'முடிந்தது',laws_found:'மீட்கப்பட்ட சட்ட விதிகள்',win_prob:'வெற்றி நிகழ்தகவு',mc_desc:'மான்டே கார்லோ உருவகப்படுத்துதல்',analysis:'சட்ட பகுப்பாய்வு',notice:'உருவாக்கப்பட்ட சட்ட அறிவிப்பு',download:'⬇ PDF பதிவிறக்கம்'},
+  te:{code:'te-IN',placeholder:'మీ చట్టపరమైన సమస్యను ఏ భాషలోనైనా వివరించండి...',standby:'సిద్ధం',working:'విశ్లేషణ...',done:'పూర్తి',laws_found:'చట్ట నిబంధనలు',win_prob:'గెలుపు సంభావ్యత',mc_desc:'మాంటే కార్లో అనుకరణ',analysis:'చట్ట విశ్లేషణ',notice:'చట్ట నోటీసు',download:'⬇ PDF డౌన్‌లోడ్'},
+  bn:{code:'bn-IN',placeholder:'আপনার আইনি সমস্যা যেকোনো ভাষায় বর্ণনা করুন...',standby:'প্রস্তুত',working:'বিশ্লেষণ...',done:'সম্পূর্ণ',laws_found:'প্রাপ্ত আইনি বিধান',win_prob:'জয়ের সম্ভাবনা',mc_desc:'মন্টে কার্লো সিমুলেশন',analysis:'আইনি বিশ্লেষণ',notice:'আইনি নোটিশ',download:'⬇ PDF ডাউনলোড'},
+  mr:{code:'mr-IN',placeholder:'तुमची कायदेशीर समस्या कोणत्याही भाषेत सांगा...',standby:'तयार',working:'विश्लेषण...',done:'पूर्ण',laws_found:'कायदेशीर तरतुदी',win_prob:'विजयाची शक्यता',mc_desc:'मॉन्टे कार्लो सिम्युलेशन',analysis:'कायदेशीर विश्लेषण',notice:'कायदेशीर नोटीस',download:'⬇ PDF डाउनलोड'},
+  gu:{code:'gu-IN',placeholder:'તમારી કાનૂની સમસ્યા કોઈપણ ભાષામાં જણાવો...',standby:'તૈયાર',working:'વિશ્લેષણ...',done:'પૂર્ણ',laws_found:'કાનૂની જોગવાઈઓ',win_prob:'જીતની સંભાવના',mc_desc:'મોન્ટે કાર્લો સિમ્યુલેશન',analysis:'કાનૂની વિશ્લેષણ',notice:'કાનૂની નોટિસ',download:'⬇ PDF ડાઉનલોડ'},
+  kn:{code:'kn-IN',placeholder:'ನಿಮ್ಮ ಕಾನೂನು ಸಮಸ್ಯೆಯನ್ನು ಯಾವುದೇ ಭಾಷೆಯಲ್ಲಿ ವಿವರಿಸಿ...',standby:'ಸಿದ್ಧ',working:'ವಿಶ್ಲೇಷಣೆ...',done:'ಪೂರ್ಣ',laws_found:'ಕಾನೂನು ನಿಬಂಧನೆಗಳು',win_prob:'ಗೆಲುವಿನ ಸಂಭಾವ್ಯತೆ',mc_desc:'ಮಾಂಟೆ ಕಾರ್ಲೊ ಸಿಮ್ಯುಲೇಶನ್',analysis:'ಕಾನೂನು ವಿಶ್ಲೇಷಣೆ',notice:'ಕಾನೂನು ನೋಟಿಸ್',download:'⬇ PDF ಡೌನ್‌ಲೋಡ್'},
+  ml:{code:'ml-IN',placeholder:'നിങ്ങളുടെ നിയമ പ്രശ്നം ഏത് ഭാഷയിലും വിവരിക്കുക...',standby:'തയ്യാർ',working:'വിശകലനം...',done:'പൂർത്തി',laws_found:'നിയമ വ്യവസ്ഥകൾ',win_prob:'വിജയ സാധ്യത',mc_desc:'മോണ്ടെ കാർലോ സിമുലേഷൻ',analysis:'നിയമ വിശകലനം',notice:'നിയമ നോട്ടീസ്',download:'⬇ PDF ഡൗൺലോഡ്'},
+  pa:{code:'pa-IN',placeholder:'ਆਪਣੀ ਕਾਨੂੰਨੀ ਸਮੱਸਿਆ ਕਿਸੇ ਵੀ ਭਾਸ਼ਾ ਵਿੱਚ ਦੱਸੋ...',standby:'ਤਿਆਰ',working:'ਵਿਸ਼ਲੇਸ਼ਣ...',done:'ਪੂਰਾ',laws_found:'ਕਾਨੂੰਨੀ ਵਿਵਸਥਾਵਾਂ',win_prob:'ਜਿੱਤ ਦੀ ਸੰਭਾਵਨਾ',mc_desc:'ਮੋਂਟੇ ਕਾਰਲੋ ਸਿਮੂਲੇਸ਼ਨ',analysis:'ਕਾਨੂੰਨੀ ਵਿਸ਼ਲੇਸ਼ਣ',notice:'ਕਾਨੂੰਨੀ ਨੋਟਿਸ',download:'⬇ PDF ਡਾਊਨਲੋਡ'},
+  auto:{code:'',placeholder:'Speak or type in any language — auto-detected...',standby:'STANDBY',working:'ANALYZING...',done:'COMPLETE',laws_found:'Retrieved Legal Provisions',win_prob:'Win Probability',mc_desc:'Monte Carlo Simulation (100 trials)',analysis:'Legal Analysis',notice:'Generated Legal Notice',download:'⬇ Download Legal Notice PDF'},
+};
+let curLang='en';
+
+document.getElementById('langBar').addEventListener('click',e=>{
+  if(!e.target.classList.contains('lang-chip'))return;
+  document.querySelectorAll('.lang-chip').forEach(c=>c.classList.remove('active'));
+  e.target.classList.add('active');
+  curLang=e.target.dataset.lang;
+  applyLang();
+});
+
+function applyLang(){
+  const L=LANG_MAP[curLang]||LANG_MAP.en;
+  document.getElementById('qInput').placeholder=L.placeholder;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.dataset.i18n;
+    if(L[k])el.textContent=L[k];
+  });
+  ['graph','logic','notice','scorer'].forEach(n=>{
+    const el=document.getElementById('st-'+n);
+    if(el&&!el.closest('.agent-card').classList.contains('active')&&!el.closest('.agent-card').classList.contains('done'))
+      el.textContent=L.standby;
+  });
+}
+
+/* ══════════ AUTO-DETECT LANGUAGE ══════════ */
+const DETECT_RANGES={
+  hi:[/[\u0900-\u097F]/,'Hindi'],ta:[/[\u0B80-\u0BFF]/,'Tamil'],te:[/[\u0C00-\u0C7F]/,'Telugu'],
+  bn:[/[\u0980-\u09FF]/,'Bengali'],mr:[/[\u0900-\u097F]/,'Marathi'],gu:[/[\u0A80-\u0AFF]/,'Gujarati'],
+  kn:[/[\u0C80-\u0CFF]/,'Kannada'],ml:[/[\u0D00-\u0D7F]/,'Malayalam'],pa:[/[\u0A00-\u0A7F]/,'Punjabi'],
+};
+
+document.getElementById('qInput').addEventListener('input',function(){
+  const v=this.value;
+  let detected='English';
+  for(const[code,arr]of Object.entries(DETECT_RANGES)){
+    if(arr[0].test(v)){detected=arr[1];break;}
+  }
+  document.getElementById('detectedLang').textContent=detected;
+  if(curLang==='auto'){
+    for(const[code,arr]of Object.entries(DETECT_RANGES)){
+      if(arr[0].test(v)){
+        document.querySelectorAll('.lang-chip').forEach(c=>c.classList.remove('active'));
+        const autoChip=document.querySelector('[data-lang="auto"]');
+        if(autoChip)autoChip.classList.add('active');
+        break;
+      }
+    }
+  }
+});
+
+/* ══════════ VOICE INPUT ══════════ */
+let recog=null,isRec=false;
+function toggleMic(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Use Chrome for voice input.');return;}
+  if(isRec){stopMic();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog=new SR();
+  recog.continuous=true;recog.interimResults=true;
+  const L=LANG_MAP[curLang];
+  if(curLang==='auto'){
+    recog.lang='';
+  } else {
+    recog.lang=L?L.code:'en-IN';
+  }
+  recog.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;document.getElementById('qInput').value=t;document.getElementById('qInput').dispatchEvent(new Event('input'));};
+  recog.onerror=()=>stopMic();
+  recog.onend=()=>stopMic();
+  recog.start();isRec=true;
+  document.getElementById('micBtn').classList.add('recording');
+}
+function stopMic(){if(recog)recog.stop();isRec=false;document.getElementById('micBtn').classList.remove('recording');}
+
+/* ══════════ PIPELINE ══════════ */
+const AMAP={
+  graph_search:{av:'av-graph',st:'st-graph',rc:'rc-graph',res:'res-graph'},
+  legal_analysis:{av:'av-logic',st:'st-logic',rc:'rc-logic',res:'res-logic'},
+  notice_generator:{av:'av-notice',st:'st-notice',rc:'rc-notice',res:'res-notice'},
+  win_scorer:{av:'av-scorer',st:'st-scorer',rc:'rc-mc',res:'res-scorer'},
+};
+let lastState=null;
+
+function execute(){
+  const q=document.getElementById('qInput').value.trim();
+  if(!q)return;
+  if(isRec)stopMic();
+  const L=LANG_MAP[curLang]||LANG_MAP.en;
+
+  document.getElementById('inputZone').classList.add('shrunk');
+  document.querySelectorAll('.agent-card').forEach(c=>{c.classList.remove('active','done');});
+  document.querySelectorAll('.res-card').forEach(c=>c.classList.remove('show'));
+  ['graph','logic','notice','scorer'].forEach(n=>document.getElementById('st-'+n).textContent=L.standby);
+  document.getElementById('pdfBtn').style.display='none';
+  document.getElementById('mc-bar').style.width='0%';
+
+  const ws=new WebSocket("ws://localhost:8000/ws/analyze");
+  ws.onopen=()=>ws.send(JSON.stringify({query:q, lang:curLang}));
+  ws.onmessage=e=>handle(JSON.parse(e.data));
+  ws.onerror=()=>{alert("Cannot connect.");document.getElementById('inputZone').classList.remove('shrunk');};
+  ws.onclose=()=>document.getElementById('inputZone').classList.remove('shrunk');
+}
+
+function handle(m){
+  const L=LANG_MAP[curLang]||LANG_MAP.en;
+  if(m.event==='node_start'){
+    const a=AMAP[m.node];if(!a)return;
+    document.getElementById(a.av).classList.add('active');
+    document.getElementById(a.st).textContent=L.working;
+  }
+  else if(m.event==='node_done'){
+    const a=AMAP[m.node];if(!a)return;
+    const av=document.getElementById(a.av);
+    av.classList.remove('active');av.classList.add('done');
+    document.getElementById(a.st).textContent=L.done;
+    document.getElementById(a.rc).classList.add('show');
+
+    if(m.node==='graph_search'){
+      let h='';
+      if(m.data.emotion&&m.data.emotion!=='NEUTRAL')h+=`<div class="psych-tag">⚠ PSYCH-ENGINE: ${m.data.emotion}</div>`;
+      h+=m.data.laws.map(l=>`<div class="law-item"><div class="law-name">${l.title}</div><div class="law-ref">${l.act} · ${l.section}</div></div>`).join('');
+      document.getElementById(a.res).innerHTML=h;
+    }
+    else if(m.node==='legal_analysis'){
+      document.getElementById(a.res).innerHTML=`<p style="color:var(--text);line-height:1.8">${m.data.analysis}</p>`;
+    }
+    else if(m.node==='notice_generator'){
+      document.getElementById(a.res).innerHTML=`<div class="doc-block">${m.data.notice}</div>`;
+      document.getElementById('pdfBtn').style.display='block';
+    }
+  }
+  else if(m.event==='monte_carlo'){
+    document.getElementById('mc-val').textContent=m.prob+'%';
+    document.getElementById('mc-bar').style.width=m.prob+'%';
+  }
+  else if(m.event==='complete'){lastState=m.state;}
+}
+
+/* ══════════ PDF ══════════ */
+async function dlPDF(){
+  if(!lastState)return;
+  const law=lastState.matched_laws?.[0]||{};
+  const res=await fetch("/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({citizen_name:"Complainant",opponent_name:"Respondent",opponent_addr:"Address, City, State",
+      situation:document.getElementById("qInput").value,notice_text:lastState.legal_notice||"",
+      act:law.act||"Indian Law",section:law.section||"",
+      authority:lastState.authority||"Court",win_prob:lastState.win_probability||75})});
+  const blob=await res.blob(),url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="VIDHI_Notice.pdf";a.click();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VIDHI — 8-Agent Legal Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#FDFBF7;
+  --surface:rgba(255,255,255,0.85);
+  --surface-solid:#FFFFFF;
+  --surface2:#F7F3EB;
+  --border:rgba(226,216,192,0.6);
+  --text:#2C1810;
+  --text2:#8B7355;
+  --v1:#D4AF37;--v1g:rgba(212,175,55,0.08);
+  --v2:#C5832B;--v2g:rgba(197,131,43,0.08);
+  --v3:#9C661F;--v3g:rgba(156,102,31,0.08);
+  --v4:#8B4513;--v4g:rgba(139,69,19,0.08);
+  --v5:#DAA520;--v5g:rgba(218,165,32,0.08);
+  --v6:#CD950C;--v6g:rgba(205,149,12,0.08);
+  --v7:#9370DB;--v7g:rgba(147,112,219,0.08);
+  --v8:#EF4444;--v8g:rgba(239,68,68,0.08);
+}
+
+::selection { background: rgba(212,175,55,0.25); color: var(--text); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.4); }
+
+body{
+  background: var(--bg);
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.08) 0%, rgba(253,251,247,0.7) 50%, #FDFBF7 100%);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+canvas#particles{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.app{
+  position: relative;
+  z-index: 10;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 30px 20px 80px;
+  animation: pageFadeIn 0.8s ease-out;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* TOPBAR */
+.topbar{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 15px 25px;
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(139,69,19,0.02);
+}
+
+.brand{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-mark{
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--v1), var(--v2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(212,175,55,0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-mark::after{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-20deg);
+  animation: brandShimmer 3s infinite;
+}
+
+@keyframes brandShimmer {
+  0% { left: -100%; }
+  40%, 100% { left: 150%; }
+}
+
+.brand-name{
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: var(--text);
+  line-height: 1;
+}
+
+.brand-ver{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text2);
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+.top-controls{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lang-carousel{
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(244,239,230,0.6);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.lang-chip{
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  white-space: nowrap;
+}
+
+.lang-chip.active{
+  background: linear-gradient(135deg, var(--v1), var(--v2));
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(212,175,55,0.25);
+}
+
+.lang-chip:hover:not(.active){
+  color: var(--text);
+  background: rgba(255,255,255,0.5);
+}
+
+.sys-badge{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  color: #10B981;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.01);
+}
+
+.pulse-dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  animation: badgeBlink 1.5s infinite;
+}
+
+@keyframes badgeBlink {
+  50% { opacity: 0.3; transform: scale(0.9); }
+}
+
+/* INPUT SECTION */
+.input-section{
+  max-width: 800px;
+  margin: 0 auto 50px;
+  transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.input-section.shrunk{
+  transform: scale(0.94);
+  opacity: 0.4;
+  pointer-events: none;
+  margin-bottom: 25px;
+}
+
+.input-shell{
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 8px;
+  box-shadow: 0 20px 50px rgba(139,69,19,0.06), 0 2px 10px rgba(0,0,0,0.01);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.input-shell:focus-within{
+  border-color: rgba(212,175,55,0.6);
+  box-shadow: 0 25px 60px rgba(139,69,19,0.1), 0 0 0 4px rgba(212,175,55,0.15);
+}
+
+.input-flex{
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 4px 4px 4px 0;
+}
+
+textarea{
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 12px 16px;
+  resize: none;
+  outline: none;
+  height: 64px;
+  line-height: 1.5;
+}
+
+textarea::placeholder{
+  color: var(--text2);
+  opacity: 0.6;
+  font-weight: 300;
+}
+
+.circle-btn{
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  flex-shrink: 0;
+}
+
+.mic-btn{
+  background: rgba(247,243,235,0.8);
+  color: var(--text2);
+}
+
+.mic-btn:hover{
+  background: var(--v2);
+  color: #fff;
+  border-color: var(--v2);
+  transform: translateY(-2px);
+}
+
+.mic-btn.recording{
+  background: var(--v2);
+  color: #fff;
+  border-color: var(--v2);
+  animation: micActivePulse 1s infinite alternate;
+}
+
+@keyframes micActivePulse{
+  to { box-shadow: 0 0 20px rgba(197,131,43,0.4); transform: scale(1.05); }
+}
+
+.go-btn{
+  background: linear-gradient(135deg, var(--v1), var(--v2));
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 15px rgba(212,175,55,0.25);
+}
+
+.go-btn:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212,175,55,0.35);
+}
+
+.detect-bar{
+  padding: 8px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid rgba(226,216,192,0.4);
+  margin-top: 8px;
+}
+
+.detect-lang{
+  color: var(--v1);
+  font-weight: 700;
+}
+
+/* PIPELINE BAR */
+.pipeline-bar{
+  display: none;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+  padding: 20px 25px;
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(139,69,19,0.02);
+}
+
+.pipeline-step{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.step-circle{
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.pipeline-step.active .step-circle{
+  background: var(--v1g);
+  border-color: var(--v1);
+  color: var(--v1);
+  box-shadow: 0 0 15px rgba(212,175,55,0.25);
+  animation: activeStepPulse 1.2s infinite;
+}
+
+@keyframes activeStepPulse{
+  50% { transform: scale(1.1); }
+}
+
+.pipeline-step.done .step-circle{
+  background: var(--v3);
+  border-color: var(--v3);
+  color: #fff;
+}
+
+.step-label{
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.pipeline-step.active .step-label{ color: var(--v1); }
+.pipeline-step.done .step-label{ color: var(--v3); }
+
+.pipeline-connector{
+  width: 44px;
+  height: 2px;
+  background: var(--border);
+  margin-bottom: 22px;
+  transition: background 0.4s ease;
+}
+
+.pipeline-connector.done{
+  background: var(--v3);
+}
+
+/* WAR ROOM DEBATE PANEL */
+.war-room-panel {
+  display: none;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--v1);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 40px;
+  box-shadow: 0 10px 30px rgba(139,69,19,0.02);
+}
+
+.war-room-header {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.war-room-header::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--v1);
+  border-radius: 50%;
+}
+
+.war-room-log {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+.debate-line {
+  line-height: 1.6;
+  opacity: 0;
+  animation: debateLineFade 0.3s forwards;
+  background: rgba(255,255,255,0.4);
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+@keyframes debateLineFade {
+  to { opacity: 1; }
+}
+
+.debate-line span.agent-tag {
+  font-weight: 700;
+  margin-right: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.debate-line.Reasoner { color: var(--v2); border-left: 2px solid var(--v2); }
+.debate-line.SimEngine { color: var(--v3); border-left: 2px solid var(--v3); }
+.debate-line.TacticalAdvisor { color: var(--v4); border-left: 2px solid var(--v4); }
+
+/* AGENT DECK */
+.agent-deck{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.agent-card{
+  text-align: center;
+  padding: 24px 12px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface-solid);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  opacity: 0.35;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(139,69,19,0.01);
+}
+
+.agent-card:hover:not(.active):not(.done) {
+  opacity: 0.65;
+  transform: translateY(-2px);
+}
+
+.agent-card.active{
+  opacity: 1;
+  transform: translateY(-4px);
+  border-color: var(--v1);
+  box-shadow: 0 10px 25px rgba(212,175,55,0.12);
+}
+
+.agent-card.done{
+  opacity: 1;
+  border-color: var(--v3);
+}
+
+.scan-beam{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--v1), transparent);
+  transform: translateX(-100%);
+  display: none;
+}
+
+.agent-card.active .scan-beam{
+  display: block;
+  animation: scanBeamLoop 1.5s ease-in-out infinite;
+}
+
+@keyframes scanBeamLoop {
+  to { transform: translateX(100%); }
+}
+
+.robot-face{
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px;
+  border-radius: 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.agent-card.active .robot-face{
+  animation: activeBotHover 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes activeBotHover {
+  to { transform: translateY(-4px) scale(1.02); }
+}
+
+.agent-card.done .robot-face{
+  filter: drop-shadow(0 4px 8px rgba(156,102,31,0.25));
+}
+
+.r1{ background: linear-gradient(135deg, #F8E7C9, #E6C27A); }
+.r2{ background: linear-gradient(135deg, #F5DCC0, #D69C56); }
+.r3{ background: linear-gradient(135deg, #ECDAC1, #B88645); }
+.r4{ background: linear-gradient(135deg, #E6CDBC, #A0522D); }
+.r5{ background: linear-gradient(135deg, #F9EECA, #DAA520); }
+.r6{ background: linear-gradient(135deg, #F3E6C4, #CD950C); }
+.r7{ background: linear-gradient(135deg, #E4D8F3, #9370DB); }
+.r8{ background: linear-gradient(135deg, #FEE2E2, #F87171); }
+
+.robot-face svg{
+  width: 44px;
+  height: 44px;
+}
+
+.agent-card.active .eye{
+  animation: activeEyeGlow 0.8s infinite alternate;
+}
+
+@keyframes activeEyeGlow {
+  to { fill: #fff; filter: drop-shadow(0 0 5px #fff); }
+}
+
+.agent-card.done .eye{
+  fill: var(--v3);
+}
+
+.done-badge{
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--v3);
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  border: 2px solid var(--surface-solid);
+  animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badgePop {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.agent-card.done .done-badge{
+  display: flex;
+}
+
+.agent-label{
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.agent-tech{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text2);
+  margin-bottom: 12px;
+}
+
+.agent-state{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  background: var(--surface2);
+  color: var(--text2);
+  transition: all 0.3s ease;
+}
+
+.agent-card.active .agent-state{
+  background: var(--v1g);
+  color: var(--v1);
+}
+
+.agent-card.done .agent-state{
+  background: var(--v3g);
+  color: var(--v3);
+}
+
+.thought-stream{
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  background: #1C1917;
+  border-radius: 10px;
+  margin-top: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: #34D399;
+  text-align: left;
+  padding: 0;
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agent-card.active .thought-stream{
+  height: 90px;
+  padding: 8px 10px;
+  margin-top: 12px;
+  border: 1px solid rgba(226,216,192,0.15);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+  overflow-y: auto;
+}
+
+.agent-card.done .thought-stream{
+  height: 0;
+  padding: 0;
+  margin-top: 0;
+  border: none;
+}
+
+.thought-line{
+  opacity: 0;
+  animation: thoughtLineFade 0.3s forwards;
+  line-height: 1.4;
+}
+
+@keyframes thoughtLineFade {
+  to { opacity: 1; }
+}
+
+/* RESULTS GRID */
+.results-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.res-card{
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 26px;
+  opacity: 0;
+  transform: translateY(15px) scale(0.98);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(139,69,19,0.015);
+}
+
+.res-card.show{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.res-card.wide{
+  grid-column: 1 / -1;
+}
+
+.res-card::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.c1::before{ background: linear-gradient(90deg, #E6C27A, #D4AF37); }
+.c2::before{ background: linear-gradient(90deg, #D69C56, #C5832B); }
+.c3::before{ background: linear-gradient(90deg, #B88645, #9C661F); }
+.c4::before{ background: linear-gradient(90deg, #A0522D, #8B4513); }
+.c5::before{ background: linear-gradient(90deg, #DAA520, #B8860B); }
+.c6::before{ background: linear-gradient(90deg, #CD950C, #8B6914); }
+.c7::before{ background: linear-gradient(90deg, #9370DB, #6A5ACD); }
+.c8::before{ background: linear-gradient(90deg, #F87171, #EF4444); }
+
+.res-head{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.res-icon{
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.c1 .res-icon{ background: var(--v1g); color: var(--v1); }
+.c2 .res-icon{ background: var(--v2g); color: var(--v2); }
+.c3 .res-icon{ background: var(--v3g); color: var(--v3); }
+.c4 .res-icon{ background: var(--v4g); color: var(--v4); }
+.c5 .res-icon{ background: var(--v5g); color: var(--v5); }
+.c6 .res-icon{ background: var(--v6g); color: var(--v6); }
+.c7 .res-icon{ background: var(--v7g); color: var(--v7); }
+.c8 .res-icon{ background: var(--v8g); color: var(--v8); }
+
+.res-label{
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.res-body{
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text2);
+}
+
+.law-item{
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--v1);
+}
+
+.law-name{
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.law-ref{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text2);
+}
+
+.psych-tag{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239,68,68,0.06);
+  color: #EF4444;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid rgba(239,68,68,0.15);
+  margin-bottom: 14px;
+}
+
+.doc-block{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text);
+  background: var(--surface2);
+  padding: 20px;
+  border-radius: 14px;
+  white-space: pre-wrap;
+  line-height: 1.7;
+  border: 1px solid var(--border);
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.big-num{
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--v4), #C5832B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+
+.bar-bg{
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  margin-top: 14px;
+  overflow: hidden;
+}
+
+.bar-val{
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--v4), #C5832B);
+  width: 0%;
+  transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.next-step-item{
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+.step-num{
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--v4g);
+  color: var(--v4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.dl-btn{
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--v3), #8B4513);
+  color: #fff;
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 18px;
+  box-shadow: 0 6px 20px rgba(139,69,19,0.15);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: none;
+}
+
+.dl-btn:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(139,69,19,0.22);
+}
+
+.precedent-item{
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 3px solid #DAA520;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.precedent-name{
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.precedent-meta{
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.precedent-badge{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--v1g);
+  color: var(--v1);
+  font-weight: 600;
+  border: 1px solid rgba(212,175,55,0.25);
+}
+
+.precedent-outcome{
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 4px;
+}
+
+.precedent-relevance{
+  font-size: 11px;
+  color: var(--v2);
+  font-style: italic;
+}
+
+.plan-text{
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+  background: var(--surface2);
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.risk-box{
+  background: rgba(239,68,68,0.04);
+  border: 1px solid rgba(239,68,68,0.12);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+  border-left: 3px solid #EF4444;
+}
+
+.risk-title{
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  color: #EF4444;
+  margin-bottom: 6px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.risk-text{
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text2);
+}
+
+.contacts-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.contact-card{
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.contact-name{
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.contact-number{
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--v1);
+}
+
+.contact-type{
+  font-size: 9px;
+  color: var(--text2);
+  margin-top: 2px;
+}
+
+.action-btn{
+  display: inline-block;
+  padding: 10px 16px;
+  background: var(--v1);
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(212,175,55,0.2);
+}
+
+.action-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(212,175,55,0.3);
+}
+
+/* MONTE CARLO LIVE LOG */
+.mc-log{
+  background: #1C1917;
+  border: 1px solid rgba(226,216,192,0.15);
+  border-radius: 10px;
+  height: 120px;
+  overflow-y: auto;
+  padding: 8px 12px;
+  margin-top: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: #34D399;
+}
+
+.mc-log-line{
+  line-height: 1.5;
+  margin-bottom: 2px;
+}
+
+.mc-log-line.win{ color: #34D399; }
+.mc-log-line.loss{ color: #F87171; }
+
+/* ADVERSARY MATRIX CARDS */
+.adv-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--v8);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.adv-claim {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  color: var(--v8);
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.adv-shield {
+  color: var(--text);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.geo-loc-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 3px solid var(--v7);
+}
+
+.geo-loc-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.geo-loc-addr {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.4;
+}
+
+@media(max-width:1024px){
+  .agent-deck{grid-template-columns: repeat(4, 1fr);}
+}
+
+@media(max-width:768px){
+  .agent-deck{grid-template-columns: repeat(2, 1fr);}
+  .results-grid{grid-template-columns: 1fr;}
+  .res-card.wide{grid-column: 1;}
+  .contacts-grid{grid-template-columns: 1fr;}
+}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">V</div>
+      <div>
+        <div class="brand-name">VIDHI</div>
+        <div class="brand-ver">8-AGENT LEGAL INTELLIGENCE v9.0</div>
+      </div>
+    </div>
+    <div class="top-controls">
+      <div class="lang-carousel" id="langBar">
+        <button class="lang-chip active" data-lang="en">English</button>
+        <button class="lang-chip" data-lang="hi">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;</button>
+        <button class="lang-chip" data-lang="ta">&#2980;&#2990;&#2992;&#3007;&#2996;&#3021;</button>
+        <button class="lang-chip" data-lang="te">&#3108;&#3142;&#3122;&#3137;&#3095;&#3137;</button>
+        <button class="lang-chip" data-lang="bn">&#2476;&#2494;&#2434;&#2482;&#2494;</button>
+        <button class="lang-chip" data-lang="mr">&#2350;&#2352;&#2366;&#2336;&#2368;</button>
+        <button class="lang-chip" data-lang="gu">&#2711;&#2753;&#2716;&#2736;&#2750;&#2724;&#2752;</button>
+        <button class="lang-chip" data-lang="kn">&#3221;&#3240;&#3277;&#3240;&#3233;</button>
+        <button class="lang-chip" data-lang="ml">&#3374;&#3378;&#3375;&#3390;&#3379;&#3330;</button>
+        <button class="lang-chip" data-lang="pa">&#2602;&#2672;&#2588;&#2622;&#2604;&#2624;</button>
+        <button class="lang-chip" data-lang="auto">Auto</button>
+      </div>
+      <div class="sys-badge"><div class="pulse-dot"></div>ONLINE</div>
+    </div>
+  </div>
+
+  <div class="input-section" id="inputZone">
+    <div class="input-shell">
+      <div class="input-flex">
+        <textarea id="qInput" placeholder="Describe your legal problem in any language..."></textarea>
+        <button class="circle-btn mic-btn" id="micBtn" onclick="toggleMic()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button class="circle-btn go-btn" onclick="execute()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+      </div>
+      <div class="detect-bar">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Detected: <span class="detect-lang" id="detectedLang">Waiting for input...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIPELINE BAR -->
+  <div class="pipeline-bar" id="pipelineBar">
+    <div class="pipeline-step" id="step-1"><div class="step-circle">1</div><div class="step-label">Retrieve</div></div>
+    <div class="pipeline-connector" id="conn-1"></div>
+    <div class="pipeline-step" id="step-2"><div class="step-circle">2</div><div class="step-label">Analyze</div></div>
+    <div class="pipeline-connector" id="conn-2"></div>
+    <div class="pipeline-step" id="step-3"><div class="step-circle">3</div><div class="step-label">Draft</div></div>
+    <div class="pipeline-connector" id="conn-3"></div>
+    <div class="pipeline-step" id="step-4"><div class="step-circle">4</div><div class="step-label">Simulate</div></div>
+    <div class="pipeline-connector" id="conn-4"></div>
+    <div class="pipeline-step" id="step-5"><div class="step-circle">5</div><div class="step-label">Precedent</div></div>
+    <div class="pipeline-connector" id="conn-5"></div>
+    <div class="pipeline-step" id="step-6"><div class="step-circle">6</div><div class="step-label">Strategy</div></div>
+    <div class="pipeline-connector" id="conn-6"></div>
+    <div class="pipeline-step" id="step-7"><div class="step-circle">7</div><div class="step-label">Locator</div></div>
+    <div class="pipeline-connector" id="conn-7"></div>
+    <div class="pipeline-step" id="step-8"><div class="step-circle">8</div><div class="step-label">Adversary</div></div>
+  </div>
+
+  <!-- WAR ROOM PANEL -->
+  <div class="war-room-panel" id="warRoomPanel">
+    <div class="war-room-header">COLLABORATIVE WAR ROOM // REAL-TIME AGENT DEBATE MATRIX</div>
+    <div class="war-room-log" id="warRoomLog"></div>
+  </div>
+
+  <!-- AGENT DECK -->
+  <div class="agent-deck" id="agentDeck">
+    <div class="agent-card" id="av-graph"><div class="scan-beam"></div>
+      <div class="robot-face r1"><svg viewBox="0 0 64 64" fill="none"><rect x="12" y="16" width="40" height="34" rx="8" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><rect x="24" y="8" width="16" height="10" rx="5" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/><circle cx="24" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><circle cx="40" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><path d="M26 42h12" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/></svg><div class="done-badge">&#10003;</div></div>
+      <div class="agent-label">Graph Retriever</div><div class="agent-tech">NetworkX + RAG</div><div class="agent-state" id="st-graph">STANDBY</div><div class="thought-stream" id="ts-graph"></div></div>
+
+    <div class="agent-card" id="av-logic"><div class="scan-beam"></div>
+      <div class="robot-face r2"><svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="34" r="20" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="32" y1="14" x2="32" y2="6" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><circle cx="32" cy="5" r="3" fill="rgba(255,255,255,0.4)"/><circle cx="24" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><circle cx="40" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><path d="M26 42q6 4 12 0" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none" stroke-linecap="round"/></svg><div class="done-badge">&#10003;</div></div>
+      <div class="agent-label">Legal Reasoner</div><div class="agent-tech">LLM + Semantic</div><div class="agent-state" id="st-logic">STANDBY</div><div class="thought-stream" id="ts-logic"></div></div>
+
+    <div class="agent-card" id="av-notice"><div class="scan-beam"></div>
+      <div class="robot-face r3"><svg viewBox="0 0 64 64" fill="none"><rect x="10" y="14" width="44" height="38" rx="6" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><rect x="4" y="28" width="8" height="10" rx="4" fill="rgba(255,255,255,0.1)"/><rect x="52" y="28" width="8" height="10" rx="4" fill="rgba(255,255,255,0.1)"/><circle cx="24" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><circle cx="40" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><rect x="24" y="40" width="16" height="3" rx="1.5" fill="rgba(255,255,255,0.4)"/></svg><div class="done-badge">&#10003;</div></div>
+      <div class="agent-label">Notice Drafter</div><div class="agent-tech">NLP + Assembly</div><div class="agent-state" id="st-notice">STANDBY</div><div class="thought-stream" id="ts-notice"></div></div>
+
+    <div class="agent-card" id="av-scorer"><div class="scan-beam"></div>
+      <div class="robot-face r4"><svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="34" r="20" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><polygon points="32,8 36,16 28,16" fill="rgba(255,255,255,0.3)"/><circle cx="24" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><circle cx="40" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><path d="M26 42q6 4 12 0" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none" stroke-linecap="round"/></svg><div class="done-badge">&#10003;</div></div>
+      <div class="agent-label">Monte Carlo</div><div class="agent-tech">Stochastic + Sim</div><div class="agent-state" id="st-scorer">STANDBY</div><div class="thought-stream" id="ts-scorer"></div></div>
+
+    <div class="agent-card" id="av-precedent"><div class="scan-beam"></div>
+      <div class="robot-face r5"><svg viewBox="0 0 64 64" fill="none"><polygon points="32,8 52,20 52,44 32,56 12,44 12,20" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><circle cx="24" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><circle cx="40" cy="30" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><path d="M26 40h12" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/></svg><div class="done-badge">&#10003;</div></div>
+      <div class="agent-label">Precedent Engine</div><div class="agent-tech">Case Law + DB</div><div class="agent-state" id="st-precedent">STANDBY</div><div class="thought-stream" id="ts-precedent"></div></div>
+
+    <div class="agent-card" id="av-strategy"><div class="scan-beam"></div>
+      <div class="robot-face r6"><svg viewBox="0 0 64 64" fill="none"><polygon points="32,6 54,32 32,58 10,32" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><circle cx="26" cy="28" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><circle cx="38" cy="28" r="4" class="eye" fill="rgba(255,255,255,0.7)"/><path d="M26 38q6 4 12 0" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none" stroke-linecap="round"/></svg><div class="done-badge">&#10003;</div></div>
+      <div class="agent-label">Strategic Advisor</div><div class="agent-tech">Synthesis + AI</div><div class="agent-state" id="st-strategy">STANDBY</div><div class="thought-stream" id="ts-strategy"></div></div>
+      
+    <div class="agent-card" id="av-geo"><div class="scan-beam"></div>
+      <div class="robot-face r7"><svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="24" r="12" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><path d="M32 36 L32 54 M24 46 L40 46" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><circle cx="28" cy="24" r="3" class="eye" fill="rgba(255,255,255,0.7)"/><circle cx="36" cy="24" r="3" class="eye" fill="rgba(255,255,255,0.7)"/></svg><div class="done-badge">&#10003;</div></div>
+      <div class="agent-label">Geo-Locator</div><div class="agent-tech">GPS + OpenStreetMap</div><div class="agent-state" id="st-geo">STANDBY</div><div class="thought-stream" id="ts-geo"></div></div>
+
+    <div class="agent-card" id="av-adversary"><div class="scan-beam"></div>
+      <div class="robot-face r8"><svg viewBox="0 0 64 64" fill="none"><rect x="14" y="14" width="36" height="36" rx="4" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><path d="M20 20 L26 26 M44 20 L38 26" stroke="rgba(255,255,255,0.5)" stroke-width="2"/><circle cx="24" cy="34" r="3" class="eye" fill="rgba(255,255,255,0.7)"/><circle cx="40" cy="34" r="3" class="eye" fill="rgba(255,255,255,0.7)"/><path d="M24 44h16" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/></svg><div class="done-badge">&#10003;</div></div>
+      <div class="agent-label">Adversary Sim</div><div class="agent-tech">Red-Team Node 8</div><div class="agent-state" id="st-adversary">STANDBY</div><div class="thought-stream" id="ts-adversary"></div></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-grid" id="resultsGrid">
+    <div class="res-card c1 wide" id="rc-graph"><div class="res-head"><div class="res-icon">&#9889;</div><div class="res-label" data-i18n="laws_found">Legal Provisions</div></div><div class="res-body" id="res-graph"></div></div>
+    <div class="res-card c4" id="rc-mc"><div class="res-head"><div class="res-icon">&#9678;</div><div class="res-label" data-i18n="win_prob">Win Probability</div></div><div class="res-body" id="res-scorer"><div class="big-num" id="mc-val">--%</div><div style="font-size:11px;color:var(--text2);margin-bottom:8px;" data-i18n="mc_desc">Monte Carlo Simulation (100 trials)</div><div class="bar-bg"><div class="bar-val" id="mc-bar"></div></div><div class="mc-log" id="mcLog"></div><div id="next-steps"></div></div></div>
+    <div class="res-card c2 wide" id="rc-logic"><div class="res-head"><div class="res-icon">&#9881;</div><div class="res-label" data-i18n="analysis">Legal Analysis</div></div><div class="res-body" id="res-logic"></div></div>
+    <div class="res-card c3 wide" id="rc-notice"><div class="res-head"><div class="res-icon">&#9998;</div><div class="res-label" data-i18n="notice">Legal Notice</div></div><div class="res-body" id="res-notice"></div><button class="dl-btn" id="pdfBtn" onclick="dlPDF()" data-i18n="download">Download Legal Notice PDF</button></div>
+    <div class="res-card c5 wide" id="rc-precedent"><div class="res-head"><div class="res-icon">&#9878;</div><div class="res-label" data-i18n="precedents">Case Precedents</div></div><div class="res-body" id="res-precedent"></div></div>
+    <div class="res-card c6 wide" id="rc-strategy"><div class="res-head"><div class="res-icon">&#9733;</div><div class="res-label" data-i18n="strategy">Strategic Action Plan <span style="font-size:10px;color:gray;">(Auto-Voiced)</span></div></div><div class="res-body" id="res-strategy"></div></div>
+    <div class="res-card c7 wide" id="rc-geo"><div class="res-head"><div class="res-icon">&#128205;</div><div class="res-label">Nearest Authorities</div></div><div class="res-body" id="res-geo"></div></div>
+    <div class="res-card c8 wide" id="rc-adversary"><div class="res-head"><div class="res-icon">🔴</div><div class="res-label">Adversary Counter-Defense Matrix</div></div><div class="res-body" id="res-adversary"></div></div>
+  </div>
+</div>
+
+<script>
+/* PARTICLES */
+(function(){
+  const c=document.getElementById('particles'),ctx=c.getContext('2d');
+  let w,h,pts=[];
+  function resize(){w=c.width=innerWidth;h=c.height=innerHeight;pts=[];for(let i=0;i<80;i++)pts.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.5});}
+  resize();window.addEventListener('resize',resize);
+  function draw(){ctx.clearRect(0,0,w,h);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(212,175,55,0.4)';ctx.fill();});for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(212,175,55,${0.15*(1-d/120)})`;ctx.stroke();}}requestAnimationFrame(draw);}
+  draw();
+})();
+
+/* THOUGHT ENGINE */
+const THOUGHT_BANKS={
+  graph_search:["[SYS] Booting NLP engine...","[VEC] Embedding query dimensions...","[GPH] Traversing knowledge nodes...","[MTCH] Computing cosine similarities...","[FILT] Ranking legal matches...","[OUT] Extracting top provisions..."],
+  legal_analysis:["[LLM] Initializing reasoning core...","[CTX] Loading constitutional framework...","[RSN] Mapping rights violations...","[RSN] Identifying legal standing...","[ACT] Generating action items...","[SYN] Structuring response..."],
+  notice_generator:["[TPL] Loading notice template...","[EXT] Extracting respondent details...","[DRF] Structuring statement of facts...","[CIT] Citing applicable sections...","[DRF] Framing relief demands...","[FMT] Finalizing document..."],
+  win_scorer:["[SIM] Seeding variables...","[RUN] Seeding stochastic trials..."],
+  case_precedent:["[DB] Searching case law database...","[VEC] Matching precedent patterns...","[RANK] Scoring case relevance...","[EXT] Extracting case summaries..."],
+  strategic_advisor:["[SYN] Aggregating agent outputs...","[STR] Computing optimal strategy...","[RISK] Assessing consequences...","[PLAN] Generating action timeline..."],
+  geo_locator:["[GPS] Accessing live location...","[MAP] Reverse geocoding coordinates...","[API] Searching OpenStreetMap Nominatim...","[LOC] Identifying nearest authorities..."],
+  adversary:["[RED] Running Opponent emulation...","[DEF] Formulating Shield Defense Matrix..."]
+};
+let thoughtIntervals={};
+function startThinking(id,thoughts){const c=document.getElementById(id);if(!c)return;c.innerHTML='';let i=0;thoughtIntervals[id]=setInterval(()=>{const div=document.createElement('div');div.className='thought-line';div.textContent='> '+thoughts[i%thoughts.length];c.appendChild(div);c.scrollTop=c.scrollHeight;i++;},700);}
+function stopThinking(id){clearInterval(thoughtIntervals[id]);delete thoughtIntervals[id];}
+
+/* I18N */
+const LANG_MAP={
+  en:{code:'en-IN',placeholder:'Describe your legal problem in any language...',standby:'STANDBY',working:'ANALYZING...',done:'COMPLETE',laws_found:'Legal Provisions',win_prob:'Win Probability',mc_desc:'Monte Carlo Simulation (100 trials)',analysis:'Legal Analysis',notice:'Legal Notice',download:'Download Legal Notice PDF',precedents:'Case Precedents',strategy:'Strategic Action Plan'},
+  hi:{code:'hi-IN',placeholder:'अपनी कानूनी समस्या बताएं...',standby:'तैयार',working:'विश्लेषण...',done:'पूर्ण',laws_found:'कानूनी प्रावधान',win_prob:'जीत की संभावना',mc_desc:'मोंटे कार्लो सिमुलेशन',analysis:'कानूनी विश्लेषण',notice:'कानूनी नोटिस',download:'PDF डाउनलोड',precedents:'मामले के उदाहरण',strategy:'रणनीतिक योजना'},
+  ta:{code:'ta-IN',placeholder:'உங்கள் சட்ட பிரச்சனை விவரிக்கவும்...',standby:'தயார்',working:'பகுப்பாய்வு...',done:'முடிந்தது',laws_found:'சட்ட விதிகள்',win_prob:'வெற்றி நிகழ்தகவு',mc_desc:'மான்கே கார்லோ',analysis:'சட்ட பகுப்பாய்வு',notice:'சட்ட அறிவிப்பு',download:'PDF பதிவிறக்கம்',precedents:'வழக்கு உதாரணங்கள்',strategy:'தந்திர திட்டம்'},
+  te:{code:'te-IN',placeholder:'మీ చట్టపరమైన సమస్యను వివరించండి...',standby:'సిద్ధం',working:'విశ్లేషణ...',done:'పూర్తి',laws_found:'చట్ట నిబంధనలు',win_prob:'గెలుపు సంభావ్యత',mc_desc:'మాంటే కార్లో',analysis:'చట్ట విశ్లేషణ',notice:'చట్ట నోటీసు',download:'PDF డౌన్‌లోడ్',precedents:'కేసు ఉదాహరణలు',strategy:'వ్యూహాత్మక ప్రణాళిక'},
+  bn:{code:'bn-IN',placeholder:'আপনার আইনি সমস্যা বর্ণনা করুন...',standby:'প্রস্তুত',working:'বিশ্লেষণ...',done:'সম্পূর্ণ',laws_found:'আইনি বিধান',win_prob:'জয়ের संभावना',mc_desc:'মন্টে কার্লো',analysis:'আইনি বিশ্লেষণ',notice:'আইনি নোটিশ',download:'PDF ডাউনলোড',precedents:'মামলার নজির',strategy:'কৌশলগত পরিকল্পনা'},
+  mr:{code:'mr-IN',placeholder:'तुमची कायदेशीर समस्या सांगा...',standby:'तयार',working:'विश्लेषण...',done:'पूर्ण',laws_found:'कायदेशीर तरतुदी',win_prob:'विजयाची शक्यता',mc_desc:'मँटे कार्लो',analysis:'कायदेशीर विश्लेषण',notice:'कायदेशीर नोटीस',download:'PDF डाउनलोड',precedents:'खटल्याचे उदाहरण',strategy:'रणनीतिक योजना'},
+  gu:{code:'gu-IN',placeholder:'તમારી કાનૂની સમસ્યા જણાવો...',standby:'ત્યાર',working:'વિશ્લેષણ...',done:'પૂર્ણ',laws_found:'કાનૂની જોગવાઈઓ',win_prob:'જીતની સંભાવના',mc_desc:'મોનટે કાર્લો',analysis:'કાનૂની વિશ્લેષણ',notice:'કાનૂની નોટિસ',download:'PDF ડાઉનલોડ',precedents:'કેસ ઉદાહરણો',strategy:'રણનીતિક યોજના'},
+  kn:{code:'kn-IN',placeholder:'ನಿಮ್ಮ ಕಾನೂನು ಸಮಸ್ಯೆ ವಿವರಿಸಿ...',standby:'ಸಿದ್ಧ',working:'ವಿಶ್ಲೇಷಣೆ...',done:'ಪೂರ್ಣ',laws_found:'ಕಾನೂನು ನಿಬಂಧನೆಗಳು',win_prob:'ಗೆಲುವಿನ ಸಂಭಾವ್ಯತೆ',mc_desc:'ಮಾಂಟೆ ಕಾರ್ಲೊ',analysis:'ಕಾನೂನು ವಿಶ್ಲೇಷಣೆ',notice:'ಕಾನೂನು ನೋಟಿಸ್',download:'PDF ಡೌನ್‌ಲೋಡ್',precedents:'ಪ್ರಕರಣ ಉದಾಹರಣೆ',strategy:'ಕಾರ್ಯತಂತ್ರ'},
+  ml:{code:'ml-IN',placeholder:'നിങ്ങളുടെ നിയമ പ്രശ്നം വിവരിക്കുക...',standby:'തയ്യാർ',working:'വിശകലനം...',done:'പൂർത്തി',laws_found:'നിയമ വ്യവസ്ഥകൾ',win_prob:'വിജയ സാധ്യത',mc_desc:'മോണെ കാർലോ',analysis:'നിയമ വിശകലനം',notice:'നിയമ നോട്ടീസ്',download:'PDF ഡൗൺലോഡ്',precedents:'കേസ് ഉദാഹരണങ്ങൾ',strategy:'കാര്യതന്ത്രം'},
+  pa:{code:'pa-IN',placeholder:'ਆਪਣੀ ਕਾਨੂੰਨੀ ਸਮੱਸਿਆ ਦੱਸੋ...',standby:'ਤਿਆਰ',working:'ਵਿਸ਼ਲੇਸ਼ਣ...',done:'ਪੂਰਾ',laws_found:'ਕਾਨੂੰਨੀ ਵਿਵਸਥਾਵਾਂ',win_prob:'ਜਿੱਤ ਦੀ ਸਮਭਾਵਨਾ',mc_desc:'ਮੋਨਟੇ ਕਾਰਲੋ',analysis:'ਕਾਨੂੰਨੀ ਵਿਸ਼ਲੇਸ਼ਣ',notice:'ਕਾਨੂੰਨੀ ਨੋਟਿਸ',download:'PDF ਡਾਊਨਲੋਡ',precedents:'ਕੇਸ ਉਦਾਹਰਣ',strategy:'ਰਣਨੀਤੀ'},
+  auto:{code:'',placeholder:'Speak or type in any language...',standby:'STANDBY',working:'ANALYZING...',done:'COMPLETE',laws_found:'Legal Provisions',win_prob:'Win Probability',mc_desc:'Monte Carlo Simulation (100 trials)',analysis:'Legal Analysis',notice:'Legal Notice',download:'Download Legal Notice PDF',precedents:'Case Precedents',strategy:'Strategic Action Plan'},
+};
+let curLang='en';
+
+document.getElementById('langBar').addEventListener('click',e=>{
+  if(!e.target.classList.contains('lang-chip'))return;
+  document.querySelectorAll('.lang-chip').forEach(c=>c.classList.remove('active'));
+  e.target.classList.add('active');
+  curLang=e.target.dataset.lang;
+  applyLang();
+});
+
+function applyLang(){
+  const L=LANG_MAP[curLang]||LANG_MAP.en;
+  document.getElementById('qInput').placeholder=L.placeholder;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(L[k])el.textContent=L[k];});
+  ['graph','logic','notice','scorer','precedent','strategy','geo','adversary'].forEach(n=>{
+    const el=document.getElementById('st-'+n);
+    if(el&&!el.closest('.agent-card').classList.contains('active')&&!el.closest('.agent-card').classList.contains('done'))el.textContent=L.standby;
+  });
+}
+
+/* AUTO-DETECT */
+const DETECT_RANGES={hi:[/[\u0900-\u097F]/,'Hindi'],ta:[/[\u0B80-\u0BFF]/,'Tamil'],te:[/[\u0C00-\u0C7F]/,'Telugu'],bn:[/[\u0980-\u09FF]/,'Bengali'],mr:[/[\u0900-\u097F]/,'Marathi'],gu:[/[\u0A80-\u0AFF]/,'Gujarati'],kn:[/[\u0C80-\u0CFF]/,'Kannada'],ml:[/[\u0D00-\u0D7F]/,'Malayalam'],pa:[/[\u0A00-\u0A7F]/,'Punjabi']};
+document.getElementById('qInput').addEventListener('input',function(){
+  let d='English';for(const[c,a]of Object.entries(DETECT_RANGES)){if(a[0].test(this.value)){d=a[1];break;}}
+  document.getElementById('detectedLang').textContent=d;
+});
+
+/* VOICE VOICE */
+let recog=null,isRec=false;
+function toggleMic(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Use Chrome.');return;}
+  if(isRec){stopMic();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog=new SR();recog.continuous=true;recog.interimResults=true;
+  const L=LANG_MAP[curLang];recog.lang=curLang==='auto'?'':L?L.code:'en-IN';
+  recog.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;document.getElementById('qInput').value=t;document.getElementById('qInput').dispatchEvent(new Event('input'));};
+  recog.onerror=()=>stopMic();recog.onend=()=>stopMic();
+  recog.start();isRec=true;document.getElementById('micBtn').classList.add('recording');
+}
+function stopMic(){if(recog)recog.stop();isRec=false;document.getElementById('micBtn').classList.remove('recording');}
+
+/* PIPELINE MAP MAP */
+const AMAP={
+  graph_search:{av:'av-graph',st:'st-graph',ts:'ts-graph',rc:'rc-graph',res:'res-graph',step:'step-1',conn:null},
+  legal_analysis:{av:'av-logic',st:'st-logic',ts:'ts-logic',rc:'rc-logic',res:'res-logic',step:'step-2',conn:'conn-1'},
+  notice_generator:{av:'av-notice',st:'st-notice',ts:'ts-notice',rc:'rc-notice',res:'res-notice',step:'step-3',conn:'conn-2'},
+  win_scorer:{av:'av-scorer',st:'st-scorer',ts:'ts-scorer',rc:'rc-mc',res:'res-scorer',step:'step-4',conn:'conn-3'},
+  case_precedent:{av:'av-precedent',st:'st-precedent',ts:'ts-precedent',rc:'rc-precedent',res:'res-precedent',step:'step-5',conn:'conn-4'},
+  strategic_advisor:{av:'av-strategy',st:'st-strategy',ts:'ts-strategy',rc:'rc-strategy',res:'res-strategy',step:'step-6',conn:'conn-5'},
+  geo_locator:{av:'av-geo',st:'st-geo',ts:'ts-geo',rc:'rc-geo',res:'res-geo',step:'step-7',conn:'conn-6'},
+  adversary:{av:'av-adversary',st:'st-adversary',ts:'ts-adversary',rc:'rc-adversary',res:'res-adversary',step:'step-8',conn:'conn-7'}
+};
+let lastState=null;
+
+function execute(){
+  const q=document.getElementById('qInput').value.trim();
+  if(!q)return;
+  if(isRec)stopMic();
+  
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      (pos)=>{ startPipeline(q, pos.coords.latitude, pos.coords.longitude); },
+      (err)=>{ console.log("Geo error", err); startPipeline(q, 0, 0); },
+      {timeout: 5000}
+    );
+  } else {
+    startPipeline(q, 0, 0);
+  }
+}
+
+function startPipeline(q, lat, lng){
+  const L=LANG_MAP[curLang]||LANG_MAP.en;
+  document.getElementById('inputZone').classList.add('shrunk');
+  document.getElementById('pipelineBar').style.display='flex';
+  document.getElementById('warRoomPanel').style.display='none';
+  document.getElementById('warRoomLog').innerHTML='';
+  document.querySelectorAll('.agent-card').forEach(c=>{c.classList.remove('active','done');});
+  document.querySelectorAll('.res-card').forEach(c=>c.classList.remove('show'));
+  document.querySelectorAll('.pipeline-step').forEach(s=>{s.classList.remove('active','done');});
+  document.querySelectorAll('.pipeline-connector').forEach(c=>c.classList.remove('done'));
+  ['graph','logic','notice','scorer','precedent','strategy','geo','adversary'].forEach(n=>document.getElementById('st-'+n).textContent=L.standby);
+  Object.keys(thoughtIntervals).forEach(k=>stopThinking(k));
+  document.getElementById('pdfBtn').style.display='none';
+  document.getElementById('mcLog').innerHTML='';
+  if(window.synth)window.synth.cancel();
+  document.getElementById('mc-bar').style.width='0%';
+  document.getElementById('mc-val').textContent='--%';
+  document.getElementById('next-steps').innerHTML='';
+
+  const ws=new WebSocket("ws://localhost:8000/ws/analyze");
+  ws.onopen=()=>ws.send(JSON.stringify({query:q,lang:curLang,lat:lat,lng:lng}));
+  ws.onmessage=e=>handle(JSON.parse(e.data));
+  ws.onerror=()=>{alert("Cannot connect.");document.getElementById('inputZone').classList.remove('shrunk');};
+  ws.onclose=()=>document.getElementById('inputZone').classList.remove('shrunk');
+}
+
+function handle(m){
+  const L=LANG_MAP[curLang]||LANG_MAP.en;
+  const a=AMAP[m.node];
+
+  if(m.event==='node_start'&&a){
+    document.getElementById(a.av).classList.add('active');
+    document.getElementById(a.st).textContent=L.working;
+    document.getElementById(a.step).classList.add('active');
+    startThinking(a.ts,THOUGHT_BANKS[m.node]||[]);
+  }
+  else if(m.event==='thought'&&a){
+    const c=document.getElementById(a.ts);
+    if(c){const div=document.createElement('div');div.className='thought-line';div.textContent='> '+m.text;c.appendChild(div);c.scrollTop=c.scrollHeight;}
+  }
+  else if(m.event==='war_room_debate'){
+    document.getElementById('warRoomPanel').style.display='block';
+    const log = document.getElementById('warRoomLog');
+    m.dialogue.forEach((line, index) => {
+      setTimeout(() => {
+        const div = document.createElement('div');
+        div.className = `debate-line ${line.agent}`;
+        div.innerHTML = `<span class="agent-tag">[${line.agent}]:</span>${line.message}`;
+        log.appendChild(div);
+        log.scrollTop = log.scrollHeight;
+      }, index * 900);
+    });
+  }
+  else if(m.event==='monte_carlo_trial'){
+    const log = document.getElementById('mcLog');
+    const div = document.createElement('div');
+    div.className = 'mc-log-line ' + (m.text.includes('WIN') ? 'win' : 'loss');
+    div.textContent = m.text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+  else if(m.event==='node_done'&&a){
+    stopThinking(a.ts);
+    const av=document.getElementById(a.av);
+    av.classList.remove('active');av.classList.add('done');
+    document.getElementById(a.st).textContent=L.done;
+    document.getElementById(a.step).classList.remove('active');
+    document.getElementById(a.step).classList.add('done');
+    if(a.conn)document.getElementById(a.conn).classList.add('done');
+    document.getElementById(a.rc).classList.add('show');
+
+    if(m.node==='graph_search'){
+      let h='';
+      if(m.data.emotion&&m.data.emotion!=='NEUTRAL')h+=`<div class="psych-tag">PSYCH-ENGINE: ${m.data.emotion}</div>`;
+      h+=(m.data.laws||[]).map(l=>`<div class="law-item"><div class="law-name">${l.title||''}</div><div class="law-ref">${l.act||''} \u00b7 ${l.section||''}</div></div>`).join('');
+      document.getElementById(a.res).innerHTML=h;
+    }
+    else if(m.node==='legal_analysis'){
+      document.getElementById(a.res).innerHTML=`<p style="color:var(--text);line-height:1.8;white-space:pre-wrap">${m.data.analysis||''}</p>`;
+    }
+    else if(m.node==='notice_generator'){
+      document.getElementById(a.res).innerHTML=`<div class="doc-block">${m.data.notice||''}</div>`;
+      document.getElementById('pdfBtn').style.display='block';
+    }
+    else if(m.node==='win_scorer'){
+      document.getElementById('mc-val').textContent=m.data.win_prob+'%';
+      document.getElementById('mc-bar').style.width=m.data.win_prob+'%';
+      const ns=m.data.next_steps||[];
+      document.getElementById('next-steps').innerHTML=ns.map((s,i)=>`<div class="next-step-item"><div class="step-num">${i+1}</div><div>${s}</div><a href="data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ASUMMARY:${encodeURIComponent(s)}%0AEND:VEVENT%0AEND:VCALENDAR" download="step${i+1}.ics" style="margin-left:auto;font-size:10px;color:var(--v1);text-decoration:none;">Add to Calendar</a></div>`).join('');
+    }
+    else if(m.node==='case_precedent'){
+      const precs=m.data.precedents||[];
+      document.getElementById(a.res).innerHTML=precs.map(p=>`<div class="precedent-item"><div class="precedent-name">${p.name||''}</div><div class="precedent-meta"><span class="precedent-badge">${p.year||''}</span><span class="precedent-badge">${p.court||''}</span></div><div class="precedent-outcome">${p.outcome||''}</div><div class="precedent-relevance">${p.relevance||''}</div></div>`).join('');
+    }
+    else if(m.node==='strategic_advisor'){
+      let h=`<div class="plan-text">${(m.data.plan||'').replace(/\n/g,'<br>')}</div>`;
+      h+=`<div class="risk-box"><div class="risk-title">Risk Assessment \u2014 What happens if you do nothing</div><div class="risk-text">${(m.data.risk||'').replace(/\n/g,'<br>')}</div></div>`;
+      const contacts=m.data.contacts||[];
+      if(contacts.length)h+=`<div style="font-weight:700;margin-top:16px;font-size:14px">Emergency Helplines</div><div class="contacts-grid">${contacts.map(c=>`<div class="contact-card"><div class="contact-name">${c.name}</div><div class="contact-number">${c.number}</div><div class="contact-type">${c.type}</div></div>`).join('')}</div>`;
+      document.getElementById(a.res).innerHTML=h;
+      speakPlan(m.data.plan||'');
+    }
+    else if(m.node==='geo_locator'){
+      const locs=m.data.locations||[];
+      document.getElementById(a.res).innerHTML=locs.map(l=>`<div class="geo-loc-card"><div class="geo-loc-name">${l.name}</div><div class="geo-loc-addr">${l.address}</div><a class="action-btn" style="text-align:center;" href="${l.maps_url}" target="_blank">Navigate via Google Maps</a></div>`).join('');
+    }
+    else if(m.node==='adversary'){
+      const defs=m.data.defenses||[];
+      document.getElementById(a.res).innerHTML=defs.map(d=>`<div class="adv-card"><div class="adv-claim">RESPONDENT CLAIM: ${d.claim}</div><div class="adv-shield">TACTICAL SHIELD DEFENSE: ${d.shield}</div></div>`).join('');
+    }
+  }
+  else if(m.event==='complete'){lastState=m.state;}
+}
+
+/* PDF PDF */
+async function dlPDF(){
+  if(!lastState)return;
+  const law=lastState.matched_laws?.[0]||{};
+  const res=await fetch("/generate-pdf",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({citizen_name:"Complainant",opponent_name:"Respondent",opponent_addr:"Address, City, State",
+      situation:document.getElementById("qInput").value,notice_text:lastState.legal_notice||"",
+      act:law.act||"Indian Law",section:law.section||"",
+      authority:lastState.authority||"Court",win_prob:lastState.win_probability||75})});
+  const blob=await res.blob(),url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="VIDHI_Notice.pdf";a.click();
+}
+
+/* VOICE AI */
+window.synth=window.speechSynthesis;
+function speakPlan(text){
+  if(!window.synth)return;
+  const u=new SpeechSynthesisUtterance(text.replace(/[*#]/g,''));
+  u.lang='en-IN';
+  u.rate=0.95;
+  u.pitch=1;
+  window.synth.speak(u);
+}
+</script>
+</body>
+</html>
